@@ -1,0 +1,79 @@
+* Solvate PSF and COR
+
+! Set print levels
+prnlev 0
+prnlev 6 node 0
+bomlev -1
+
+! Specify use of extended PSF file format
+ioform extended
+
+! Read topology and parameter file
+stream "../1-setup/ff_bound.strm"
+
+! Read the psf and coordinate file
+open unit 11 card read name light.psf
+read psf card unit 11
+close unit 11
+open unit 11 card read name light.cor
+read coordinates card unit 11
+close unit 11
+
+! Reorient the structures
+coordinates orient
+
+! Get statistics of box
+coordinates statistics select all end
+
+! Add water to PSF
+read sequence TIP3 46656
+generate TIP3 noangle nodihedral
+
+! Read in water coordinates
+open unit 11 read formatted name water.cor
+read coordinates card unit 11 append
+close unit 11
+
+coordinates orient norotation select segid TIP3 end
+
+! Delect water molecules that overlap existing structures
+delete atom sort -
+select .byres. (segid TIP3 .and. ((segid A .or. segid B) .around. 2.5)) end
+
+! Get 10.0A from the edge. 
+!Rotate the molecule so that the x axis is the longest axis, the y axis is the second longest, and the z axis is the shortest 
+
+calc xdim = ( abs ( ?xmax - ?xmin ) + 20.0 )
+calc ydim = ( abs ( ?ymax - ?ymin ) + 20.0 )
+calc zdim = ( abs ( ?zmax - ?zmin ) + 20.0 )
+calc xposregion = @xdim / 2
+calc yposregion = @ydim / 2
+calc zposregion = @zdim / 2
+calc xminregion = -@xposregion
+calc yminregion = -@yposregion
+calc zminregion = -@zposregion
+
+! Delete molecules outside the box
+delete atom sort -
+select .byres. ( property x .gt. @xposregion .or. property x .lt. @xminregion -
+.or. property y .gt. @yposregion .or. property y .lt. @yminregion -
+.or. property z .gt. @zposregion .or. property z .lt. @zminregion ) end
+
+! Setup box size
+crystal define triclinic @xdim @ydim @zdim 90.0 90.0 90.0
+crystal build noperations 0
+image byres sele segid TIP3 end
+coordinates copy comparison
+
+! Write new PSF
+open unit 11 card write name light_sol.psf
+write psf card unit 11
+
+! Write new COR
+open unit 11 card write name light_sol.cor
+write coordinates card unit 11
+
+! We're done!
+stop
+
+

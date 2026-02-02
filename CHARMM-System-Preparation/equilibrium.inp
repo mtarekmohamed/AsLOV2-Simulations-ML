@@ -1,0 +1,149 @@
+* MD
+*
+
+! { calc setup }
+PRNLev 0
+PRNLev 6 NODE 0 
+BOMLev 0
+IOFOrmat EXTEnded
+
+! Read force field 
+STREam "../1-setup/ff_bound.strm"
+
+! { read psf & cor}
+OPEN UNIT 11 READ CARD NAME light_sol_ion.psf
+ READ psf CARD UNIT 11
+ CLOSe UNIT 11
+OPEN UNIT 12 READ CARD NAME light_sol_ion_minimized.cor
+ READ coor CARD UNIT 12
+ CLOSe UNIT 12
+
+
+
+
+! Setup box and periodic image parameters
+set theta   90.0     ! angle
+set FX      96       ! (?)
+set CUTNb   12.0    ! Distance cutoff for list of pairs (default 8.0)
+set CTOFnb  10.0    ! Distance cutoff for switching function eliminates contributions from a pair in calculating energies. (CUTNB-0.5) Old value 12.
+set CTONnb  9.0     ! Dist cut for smoothing function to reduce a pair's contribution. (default CTOFNB-1.0) Old value 10.
+set KAPPa   0.40    ! Width of Gaussian distribution central to the Ewald method.
+set ORDEr   6       ! Order of the B-spline interpolation, cubic is order 4 (default) 5th degree is ORDEr 6.  Must be an even
+
+! Define crystal
+crystal define triclinic 68.7301608 59.2345525 53.9341051 @theta @theta @theta
+
+
+CRYStal BUILd CUTOff @cutnb noperations 0
+
+! Set center box in periodic image
+image byresidue xcen 0.0 ycen 0.0 zcen 0.0 select resname TIP3 .or. segid NA .or. segid CL show end
+image bysegm    xcen 0.0 ycen 0.0 zcen 0.0 select segid A .or. segid B show end
+
+
+! { check if total charge is zero }
+
+! the total charge on the system must be 0 or else Ewald will not work correctly. we need to test for this...
+! we do the almost equal if test to avoid floating point rounding errors.
+SCALar CHARge STATistics SELEct all END
+IF ?stot .ae. 0 THEN GOTO okewald
+
+! total charge != 0.  set the bomlev to an absurdly high level to force a bailout.
+BOMLev 5
+========Achtung. particle-mesh ewald only works correctly on a structure with 0 total charge!========
+
+LABEl okewald
+
+! { Shake for hoh }
+SHAKe NOFAst BONH WATEr SELEct resname TIP3 END
+
+! Write files
+OPEN WRITe UNIT 31 FILE NAME light_heated.dcd
+OPEN WRITe UNIT 32 CARD NAME light_heated.rst
+
+NBONds              - ! suggested to use the same NBONds spec for mini and dyna
+ INBFrq -1          - ! freq of updating non-bonded list. -1 --> updated when necessary (heuristic test).
+ ELEC               - ! electrostatic-spec                                                         \
+  EWALD             - !   ewald-spec                                                               |
+   KAPPa    0.40    - !     width of Gaussian distribution central to the Ewald method.            |
+   PMEWald          - !     particle Mesh Ewald algorithm                                          |
+    FFTX    96      - ! specify the FFT grid points' number for the charge mesh.   \               |
+    FFTY    96      - ! should be near the box length in Angstrom                  |> p-mesh spec  |> method-specs
+    FFTZ    96      - ! suggest to be 2^a+3^b+5^c for efficiency.                  /               |
+    ORDEr   6       - ! order of the B-spline interpolation. Must be an even. default: 4.          |
+ VDW                - ! vdw-spec: distance specified vdW function. to suppress use NOVDwaals       |
+  VATOM             - !   vdW considered by each atom                                              |
+   VSWItched        - !                                                                            /
+ CUTNB   @cutnb     - ! distance cutoff for list of pairs                                                       default 8.0         \
+ CTOFNB  @cutnb     - ! distance cut at which the switching function eliminates all contributions from a pair.  default CUTNB-0.5   |> dist-spec::general-dist
+ CTONNB  @ctonnb      ! distance cut at which the switching function begins to reduce a pair's contribution.    default CTOFNB-1.0  /
+
+! Shake setup
+! bonh  = Bonds with hydrogens are fixed
+! param = Bond distances taken from parameter file
+! fast  = Use vector/parallel version of shake
+SHAKe BONH PARAm NOFAst
+
+! Determine piston mass for pressure and temperature
+SCALar MASS STAT
+CALC pmass = int ( ?stot  /  50.0 )
+CALC tmass = @pmass * 10
+
+! { MD simulation: 10000 steps of heating from 0K to 298K then 10000 steps of equi, each step is 0.002 ps }
+DYNAmics            - ! do md.
+ STARt              - ! start or restart (STARt/RESTart).
+ LEAP VERLet        - ! method: Leap-Frog integrator.                                                                       default: LEAP VERLet
+ NSTEp      12000   - ! no. steps of dynamic simulation.                                                                    default: 100
+ TIMESTP    0.002   - ! Time step for dynamics in picoseconds (ps)                                                          default: 0.001 (ps)
+ INBFrq     -1     - ! step freq for re-generating non-bonded list. also sets IHBFrq (H bond lists).                       default: 50. 0:no regen; -1:all lists updated when necessary.   \
+ IEQFrq     100     - ! .... .... ... assigning or scaling velocities to FINALT during equi stage.      see FINALT          default: 0                                                      |
+ IHTFrq     1000    - ! .... .... ... heating in increments of TEMINC K in heating state.                                   default: 0 (no heating)                                         |
+ IPRFrq     1000    - ! .... .... ... calculating averages and rms fluctuations of the major energy values.                 default: 100. sqrt of -num error: IPRFrq < NTRFrq & NTRFrq != 0 |
+ NPRInt     100     - ! .... .... ... storing on KUNIT & unit 6. the energy data of the dynamics run.                       default: 10.                                                    |>frep-spec
+ NSAVc      100     - ! .... .... ... writing coordinates to dcd unit IUNCrd.                                               default: 10.                                                    |
+ NSAVv      0       - ! .... .... ... writing velocities.                                                                   default: 10.                                                    |
+ NSAVq      1000    - ! .... .... ... writing charges.                                                                      default: 10.                                                    |
+ NTRFrq     1000    - ! .... .... ... stopping rotation and translation of the molecule during dynamics.                    default: 0. automatically done after each heating               |
+ IMGFrq     -1      - ! .... .... ... image update (only used for CRYStals or IMAGES is in use)                             default: 0. must be multiples of INBFRQ,                        |
+                    - !               a value of 50 is recommended if a 2A buffer is used between CUTIM and CUTNB           ---------------                                                 |
+ ISVFrq     1000    - ! .... .... ... writing a restart file.                                                               default: NSTEp                                                  /
+ IUNRea     -1      - ! io unit for reading in restart file.                            see STARt/RESTart                   default: -1, no restart file read in                        \
+ IUNWri     32      - ! .. .... ... writing restart file for current run. formatted.    see STARt/RESTart                   default: -1, no restart file written                        |
+ IUNCrd     31      - ! .. .... ... writing trajectory (.dcd), unformatted.             see NSAVC.                          default: -1, no dcd writing                                 |
+ IUNVel     -1      - ! .. .... ... writing velocities of dynamics, unformatted.                                            default: -1, no velocities writing                          |>io-spec
+ KUNIT      -1      - ! .. .... ... writing total energy and some of its components w.r.t. temperature, formatted.          default: -1, no data writing                                |
+ IUNQ       -1      - ! .. .... ... writing charges, formatted. mostly for QM/MM.       see NSAVq.                          default: -1, no charge writing                              |
+ IUNXYZ     -1      - ! .. .... ... writing coor, velocities, forces of dynamic run, formatted, movies with MOLDEN.         default: -1, no coor, velo, forc writing during dynamic     /
+ FINALT     300.0   - ! desired final (equilibrium) temperature for the system.              * all stages except init *     default: 298.0                                          \
+ FIRSTT     0.0     - ! initial temperature at which assigns velocities to do dynamics run.  * init *                       default: 0.0                                            |
+ TEMINC     30.0    - ! temperature increment in system every IHTFrq steps.                  * heating *                    default: 5.0                                            |
+ TSTRUC     -999.   - ! ........... at which the starting structure has been equilibrated. used to assign velocities.       default: -999., assign velocites at T = 1.25 * FIRSTT   |>temp-spec
+ TWINDH     5.      - ! ........... deviation from FINALT to be allowed on the high temperature side.       * equi *        default: 10                                             |
+ TWINDL     -5.     - ! ........... deviation from FINALT to be allowed on the low temperature side.        * equi *        default: -10                                            /
+ ISEED      random  - ! seed for the random number generator used for assigning velocities.                                 default: random     \
+ ISCVEL     0       - ! option for scaling velocities:                                                                      default: 0          |
+                    - !     ==0: single scale factor for all atoms;                                                         ---------------     |
+                    - !     !=0: a scale factor for each atom proportional to the kinetic energy average ratio              ---------------     |
+                    - !          between the system and along every degree of freedom for that atom.                        ---------------     |
+ ICHECW     1       - ! option for checking average temp of the system is                                                   default: 1          |
+                    - ! between FINALT+TWINDH and FINALT+TWINDL in every IEQFrq steps:                                      ---------------     |
+                    - !     ==0: no check, i.e. assign or scale velocites;                                                  ---------------     |
+                    - !     !=0: check window, i.e. assign or scale velocites if average temperature not in window.         ---------------     |>option-spec
+ ISCALE     0       - ! option for scale velocites by the factor SCALE at the begining of a RESTart run:                    default: 0          |
+                    - !     ==0: no scaling;                                                                                ---------------     |
+                    - !     !=0: scale velocities by SCALE.                                                                 ---------------     |
+                    - ! ** NOTE ** only do this when changing the temperature of the run.                                   ---------------     |
+ SCALE      1.      - ! see ISCALE.                                                                                         default: 1.         |
+ AVERAGE    no      - ! save the averaged coordinates in the last NSAVC steps, used for generating smooth movies.           default: no         |
+ ECHECK     20.0    - ! maxium amount the total energy may change on any step.                                              default: 20.0       |
+ TOTAl      1.0E-10   ! SHAKE tolerance (if SHAKE is in use).                                                               default: 1.0E-10    /
+
+WRITe coor CARD NAME light_heated.cor
+
+* Final equilibrated coordinates, done with PME
+*
+
+! We're done 
+STOP
+
+

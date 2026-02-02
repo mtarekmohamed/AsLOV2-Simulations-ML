@@ -1,0 +1,101 @@
+* Neutralize box
+*
+
+! Set print levels
+prnlev 0
+prnlev 6 node 0
+bomlev-1
+
+! Specify use of extended PSF file format
+ioform extended
+
+! Read topology and parameter files
+stream "../1-setup/ff_bound.strm"
+
+! Get box
+open unit 11 card read name light_sol.psf
+read psf card unit 11
+close unit 11
+open unit 11 card read name light_sol.cor
+read coordinates card unit 11
+close unit 11
+
+! Write new files for editing
+open unit 11 card write name light_sol_ion.psf
+write psf card unit 11
+open unit 11 card write name light_sol_ion.cor
+write coordinates card unit 11
+
+! Set possible ions to use
+set nneg CLA                     ! set atom type of neg. ion
+set negion Cl                    ! set segid of neg. ion
+set npos SOD                     ! set atom type of pos. ion
+set posion Na                    ! set segid of pos. ion 
+
+set ineg 20 
+set ipos 20
+
+! determine the net charge of the system
+scalar charge statistics select all end
+set charge = ?stot
+
+! Set ions to use based net charge
+if @charge .gt. 0 then
+   calc ineg = @ineg + @charge
+   set iontype  CLA
+endif
+if @charge .lt. 0 then
+   calc ipos = @ipos + abs(@charge)
+   set iontype SOD 
+endif
+
+format
+set mnd 5.5 ! minimum distance to solute, other ions
+set ncfg  1 ! initialize loop counter
+set sol .not. segid TIP3 ! exclude from everything but water from ion replacement
+set emin 1E20 ! initial min energy value
+set last 1 ! no. of passes thru the loop 
+random uniform iseed 314159 ! CHANGING ISEED WILL SAMPLE 100 DIFFERENT PLACEMENTS
+
+! Beginning of main monte-carlo loop
+label placeion
+
+! Reread new PSF and COR
+open unit 11 card read name light_sol_ion.psf
+read psf card unit 11
+close unit 11
+open unit 11 card read name light_sol_ion.cor
+read coordinates card unit 11
+close unit 11
+
+! Random water replacement
+stream addion.str
+
+!  assumes water is segid bwat; renumber water molecules
+join TIP3 renum
+
+!  brief mini of ions inserted into solvated model
+!mini  sd  nstep  100  nprint 1
+
+!mini abnr nstep 5000 nprint 10
+
+!  key logical test; configs with higher energy rejected
+if @emin .lt. ?ener goto test
+
+! Update files
+open unit 11 card write name light_sol_ion.psf
+write psf card unit 11
+open unit 11 card write name light_sol_ion.cor
+write coordinates card unit 11
+
+! Update minimum energy
+set emin ?ener
+
+! Test for exit, and setup for next pass; revert to stdout, close log
+label test
+incr ncfg by 1
+if ncfg .le. @last goto placeion
+
+! We're done!
+stop
+

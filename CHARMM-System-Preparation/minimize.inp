@@ -1,0 +1,93 @@
+* Minimize box
+*
+
+! Parallel
+!parallel concurrent 8
+
+! Set print levels
+prnlev 0
+prnlev 6 node 0
+
+! Specify use of extended PSF file format
+ioform extended
+
+! Read topology and parameter files
+stream "../1-setup/ff_bound.strm"
+
+! Get box
+open unit 1 card read name light_sol_ion.psf
+read psf card unit 1
+close unit 1
+open unit 1 card read name light_sol_ion.cor
+read coordinates card unit 1
+close unit 1
+
+
+! Write DCD file
+open write unit 31 file name light_sol_ion.dcd
+
+! Setup box and periodic image parameters
+set theta   90.0     ! angle
+set FX      96       ! (?)
+set CUTNb   12.0    ! Distance cutoff for list of pairs (default 8.0)
+set CTOFnb  10.0    ! Distance cutoff for switching function eliminates contributions from a pair in calculating energies. (CUTNB-0.5) Old value 12.
+set CTONnb  9.0     ! Dist cut for smoothing function to reduce a pair's contribution. (default CTOFNB-1.0) Old value 10.
+set KAPPa   0.40    ! Width of Gaussian distribution central to the Ewald method.
+set ORDEr   6       ! Order of the B-spline interpolation, cubic is order 4 (default) 5th degree is ORDEr 6.  Must be an even
+
+! Define crystal - TAKE THE VALUES FROM SOLVATION OUTPUT
+crystal define triclinic 68.7301608 59.2345525 53.9341051 @theta @theta @theta 
+
+! Build crystal
+crystal build cutoff @CUTNb noperations 0
+
+! Set center box in periodic image
+image byresidue xcen 0.0 ycen 0.0 zcen 0.0 select resname TIP3 .or. segid NA .or. segid CL show end
+image bysegm    xcen 0.0 ycen 0.0 zcen 0.0 select segid A .or. segid B show end
+
+
+
+! Shake setup
+shake nofast bonh fast water select resname TIP3 END ! nofast and fast?
+
+nbonds           - !
+CDIE             - ! Constant dielectric. Energy is proportional to 1/R.
+ATOM             - !
+!FSWI            - !
+VATOM            - !
+VDW              - !
+VFSWI            - !
+EWALD            - !
+PMEWald          - !
+KAPPa   @KAPPa   - !
+ORDEr   @ORDEr   - !
+FFTX    @FX      - !`
+FFTY    @FX      - !
+FFTZ    @FX      - !
+CUTNB   @CUTNb     !
+!CTOFNB @CUTOFnb - !
+
+
+update           - ! For Nonbonded interactions
+CUTIm   @CUTNb   - ! Maximum allowable distance of group to be included in the image atom lists.
+!IMGFrq -1       - ! Freq of updating non-bonded list. -1 --> updated when necessary (heuristic test).
+INBFrq  -1       - ! Freq of updating non-bonded list. -1 --> updated when necessary (heuristic test).
+!BYCBim          - ! Extends the BYCUbes method to systems with images or periodic boundaries
+
+
+!cons harm absolute force 1.0 mass sele segid A .or. resname TIP3 end        
+
+!Perform preliminary SD energy minimization 
+minimization sd nstep 200
+
+! Minimize structure energy: adopted basis Newton-Raphson (ABNR)
+minimization abnr nstep 10000 nprint 100 iuncrd 31 nsavc 10 tolg 0.02
+
+open unit 1 card write name light_sol_ion_minimized.cor
+write coordinates card unit 1
+
+
+! We're done!
+stop
+
+
