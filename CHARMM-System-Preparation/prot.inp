@@ -1,0 +1,51 @@
+* Make PSF and COR from PDB
+*
+
+! Set print levels
+prnlev 0
+prnlev 10 node 0
+
+! Specify use of extended PSF file format
+ioform extended
+
+! Read topology and parameter files
+bomlev -1
+stream "ff_bound.strm"
+
+! Read PDZ PDB file
+open unit 11 card read name light.pdb
+read sequence pdb unit 11
+rewind unit 11
+
+! Put caps to the protein 
+generate A setup first ace last ct3
+
+! Offset for residue number
+read coordinates pdb unit 11 offset 0 
+close unit 11
+
+! Fix missing heavy atoms
+ic purge         ! Remove undefined atoms from internal coordinate file
+ic parameter     ! Fill internal coordinates using paramter file
+ic fill preserve ! Fill internal coordinates using atomic coordinates
+ic build         ! Determine coordiantes for unspecified atoms
+
+! Add hydrogens
+coordinates initialize select type H* end
+hbuild select type H* end
+
+! Write PSF file
+open unit 11 write card name light.psf
+write psf card unit 11
+close unit 11
+
+! Write coordinates file
+open unit 11 write card name light.cor
+write coordinates card unit 11
+close unit 11
+
+! We're done!
+stop
+
+
+
