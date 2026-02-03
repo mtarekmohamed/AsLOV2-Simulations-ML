@@ -30,23 +30,22 @@ Multiple MD simulations were performed for:
 - **helicity-enhancing mutants** (T406A, T407A)
 - **helicity-disrupting mutants** (L408D, R410P)
 
-These reveal how specific hydrogen bonds influence the structural transitions. :contentReference[oaicite:3]{index=3}
+These reveal how specific hydrogen bonds influence the structural transitions. 
 
 ### 2. Role of the A′α Helix
 The A′α helix is a **key allosteric control element**:
 - Hydrogen bonds between residues (e.g., Thr407, Arg410) and surrounding β strands or the Jα helix are essential for functional switching.
-- The **N-terminal hydrogen bond network** must be maintained for productive transitions. :contentReference[oaicite:4]{index=4}
+- The **N-terminal hydrogen bond network** must be maintained for productive transitions. 
 
 ### 3. Hydrogen Bond & Contact Analysis
 Detailed hydrogen-bond tracking showed:
 - conservation of specific contacts essential for dark-to-light transitions,
-- disruption or formation of bonds correlates with secondary structure unfolding or stabilization. :contentReference[oaicite:5]{index=5}
+- disruption or formation of bonds correlates with secondary structure unfolding or stabilization.
 
 ### 4. Secondary Structure & Community Analysis
 Using DSSP and network/community analysis, the study found that:
 - β-sheet regions contribute significantly to allosteric signal propagation.
-- Community structures change meaningfully between conformational states. :contentReference[oaicite:6]{index=6}
-
+- Community structures change meaningfully between conformational states. 
 ---
 
 ## Computational Methods
