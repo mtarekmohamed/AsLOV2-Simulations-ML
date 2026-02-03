@@ -2,7 +2,6 @@
 """
 Build a symmetric similarity matrix from a 1D importance vector.
 
-Cleaned from legacy '9-matrix.py'.
 """
 
 from __future__ import annotations
