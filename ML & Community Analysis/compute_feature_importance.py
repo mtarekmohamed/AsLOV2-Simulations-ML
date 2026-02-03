@@ -2,7 +2,6 @@
 """
 Compute aggregate feature importance from an OVO model with tree estimators.
 
-Cleaned from legacy '4-feature-select.py' and '8-feature-importance.py'.
 """
 
 from __future__ import annotations
