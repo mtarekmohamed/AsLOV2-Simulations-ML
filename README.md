@@ -34,6 +34,7 @@ tool design.
 
 ---
 
+## Repository Structure
 - **CHARMM-System-Preparation**  
   Scripts and setup files used to generate parameter/topology files and solvated systems.
 
