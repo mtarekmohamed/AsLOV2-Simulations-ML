@@ -5,7 +5,7 @@ This repository accompanies the study:
 **Dynamics of hydrogen bonds in the secondary structures of allosteric protein *Avena sativa* phototropin 1**  
 Ibrahim, M. T.; Trozzi, F.; Tao, P.  
 *Computational and Structural Biotechnology Journal* 20 (2022), 50–64.  
-DOI: https://doi.org/10.1016/j.csbj.2021.11.038 :contentReference[oaicite:1]{index=1}
+DOI: https://doi.org/10.1016/j.csbj.2021.11.038
 
 This research investigates the **molecular origins of allosteric signal propagation** in the Light-Oxygen-Voltage 2 (LOV2) domain of the plant photoreceptor *Avena sativa* phototropin 1 (*AsLOV2*). The work focuses on how **hydrogen-bond networks and secondary structural elements** govern the conformational transitions between dark and light states.
 
