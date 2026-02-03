@@ -2,7 +2,6 @@
 """
 Train a Decision Tree classifier for one CV fold.
 
-Cleaned from legacy '2-decisiontree.py'.
 """
 
 from __future__ import annotations
