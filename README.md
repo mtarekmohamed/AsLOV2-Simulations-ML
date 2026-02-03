@@ -62,7 +62,7 @@ This work combines:
 
 - The **A′α helix and its hydrogen bonds** (especially Thr407 and Arg410) function as regulatory hotspots during the dark-to-light transition.
 - β-sheets not only provide structural integrity but also act as communication pathways linking distal regions.
-- Mutations affecting helicity significantly alter the conformational landscape and signal propagation efficiency. :contentReference[oaicite:8]{index=8}
+- Mutations affecting helicity significantly alter the conformational landscape and signal propagation efficiency. 
 
 ---
 
