@@ -2,7 +2,6 @@
 """
 Community detection by minimizing within-community cost for a similarity matrix.
 
-Cleaned from legacy '10-detection.py'.
 """
 
 from __future__ import annotations
