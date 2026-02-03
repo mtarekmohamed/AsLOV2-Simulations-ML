@@ -56,8 +56,7 @@ This work combines:
 - **Markov State Modeling (MSM)** to identify conformational metastable states,
 - **Hydrogen bond and contact map analytics**,
 - **Machine learning techniques** (e.g., clustering and community detection)
-  to quantify structural relationships across states. :contentReference[oaicite:7]{index=7}
-
+  to quantify structural relationships across states.
 ---
 
 ## Biological Insights
