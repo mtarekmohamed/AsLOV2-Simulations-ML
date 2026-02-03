@@ -2,7 +2,6 @@
 """
 MiniBatchKMeans clustering of 2D RMSD features and saving labels per run.
 
-Cleaned from legacy '2-kmeans.py'.
 """
 
 from __future__ import annotations
