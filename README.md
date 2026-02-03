@@ -70,7 +70,7 @@ This work combines:
 
 This study provides *atomistic detail* on how local hydrogen-bond networks in secondary structures translate to **global allosteric conformational changes** in an important plant photoreceptor. It offers both:
 - mechanistic explanations for *light-induced protein switching*,
-- computational workflows useful for **molecular biophysics**, **photobiology**, and **optogenetic tool design**. :contentReference[oaicite:9]{index=9}
+- computational workflows useful for **molecular biophysics**, **photobiology**, and **optogenetic tool design**. 
 
 ---
 
@@ -78,6 +78,6 @@ This study provides *atomistic detail* on how local hydrogen-bond networks in se
 
 If you use the concepts, data, or methods in this repository, please cite:
 
-Ibrahim, M. T.; Trozzi, F.; Tao, P. “Dynamics of hydrogen bonds in the secondary structures of allosteric protein *Avena sativa* phototropin 1.” *Comput. Struct. Biotechnol. J.* 20 (2022), 50–64. DOI: 10.1016/j.csbj.2021.11.038 :contentReference[oaicite:10]{index=10}
+Ibrahim, M. T.; Trozzi, F.; Tao, P. “Dynamics of hydrogen bonds in the secondary structures of allosteric protein *Avena sativa* phototropin 1.” *Comput. Struct. Biotechnol. J.* 20 (2022), 50–64. DOI: 10.1016/j.csbj.2021.11.038 
 
 ---
