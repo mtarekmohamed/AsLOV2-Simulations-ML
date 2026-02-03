@@ -2,7 +2,6 @@
 """
 Train an MLP classifier for one CV fold.
 
-Cleaned from legacy '2-nn.py'.
 """
 
 from __future__ import annotations
