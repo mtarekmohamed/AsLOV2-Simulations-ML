@@ -2,8 +2,6 @@
 """
 Extract alpha-carbon pairwise distances for each trajectory in an MSMBuilder metadata table.
 
-Cleaned from legacy '5-extract.py'.
-Fix: build AtomPairsFeaturizer index ONCE (legacy overwrote `index` in a loop).
 """
 
 from __future__ import annotations
