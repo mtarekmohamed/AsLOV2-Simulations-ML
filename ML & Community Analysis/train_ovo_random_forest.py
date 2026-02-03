@@ -2,7 +2,6 @@
 """
 Train a One-vs-One RandomForest classifier for one CV fold.
 
-Cleaned from legacy '2-ovo-randomforst.py'.
 """
 
 from __future__ import annotations
