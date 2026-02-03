@@ -74,6 +74,106 @@ This study provides *atomistic detail* on how local hydrogen-bond networks in se
 
 ---
 
+- **CHARMM-System-Preparation**  
+  Scripts and setup files used to generate parameter/topology files and solvated systems.
+
+- **OpenMM Simulations**  
+  Python scripts and settings used to run MD simulations in OpenMM.
+
+- **ML & Community Analysis**  
+  Code to extract features from simulation data, train ML models, compute similarity metrics, and detect communities.
+
+---
+
+## 🚀 How to Use This Repository
+
+### 1. System Preparation
+
+Prepare the *AsLOV2* structural system for simulation using the files under `CHARMM-System-Preparation/`.  
+These typically include:
+
+- topology (PSF/PDB files),
+- force field parameter files,
+- solvated coordinate sets.
+
+Detailed preparatory commands are provided in the corresponding subfolder.
+
+---
+
+### 2. Running MD Simulations
+
+Simulations are set up to sample conformational states of *AsLOV2* (dark state, light state, and variants).  
+The scripts in `OpenMM Simulations/` handle:
+
+- energy minimization
+- equilibration stages
+- production MD
+- logging and checkpointing
+
+Each script accepts arguments for:
+- input coordinate and topology files,
+- simulation length,
+- temperature / pressure,
+- output trajectories.
+
+---
+
+## 📊 Machine Learning & Structural Analysis
+
+The *ML & Community Analysis* suite is designed to work on MD trajectory outputs to:
+
+### • Extract descriptive features
+Features such as **alpha-carbon distances**, **secondary-structure metrics**, and **hydrogen bond patterns** are extracted as numerical representation of conformations.
+
+### • Train classifiers
+Machine learning models (e.g., Decision Trees, Random Forests, Neural Networks) are trained to classify conformational states or to find patterns related to allosteric transitions.
+
+### • Extract importance and structure
+Feature importance measures highlight which structural elements or atom pairs contribute most strongly to state discrimination.
+
+### • Build similarity / community maps
+Similarity matrices and community detection reveal clusters of residues or structural subdomains that act together during conformational change.
+
+Below is a script-level breakdown.
+
+---
+
+## 📜 Detailed Script Analysis
+
+### **Feature Extraction**
+- `extract_alpha_carbon_distances.py`  
+  Extracts all pairwise alpha-carbon distances from MD trajectories using an MSMBuilder metadata table and saves them for downstream analysis.
+
+### **Model Training**
+- `train_decision_tree.py`  
+  Trains a **Decision Tree classifier** on stacked feature arrays using cross-validation splits.
+
+- `train_ovo_random_forest.py`  
+  Trains a **One-vs-One RandomForest classifier** for multi-class discrimination of conformational states.
+
+- `train_mlp.py`  
+  Trains a **Multi-Layer Perceptron (MLP)** neural network classifier with configurable regularization.
+
+### **Feature Importance**
+- `compute_feature_importance.py`  
+  Aggregates feature importance scores across estimators (e.g., random forests) and optionally plots cumulative importance.
+
+### **Similarity Matrix**
+- `build_similarity_matrix.py`  
+  Converts a 1D importance vector into a symmetric similarity matrix representing relationships between residues or structural features.
+
+### **Community Detection**
+- `detect_communities.py`  
+  Applies iterative local optimization to group nodes in a similarity graph into communities that minimize within-community costs.
+
+### **Clustering**
+- `kmeans_rmsd.py`  
+  Performs MiniBatch KMeans clustering on 2D projection data (e.g., dihedral/RMSD features) and saves cluster labels.
+
+---
+
+
+
 ## Citing This Work
 
 If you use the concepts, data, or methods in this repository, please cite:
