@@ -17,7 +17,7 @@ This research investigates the **molecular origins of allosteric signal propagat
 - monomeric stability in both dark and light states,
 - rapid light-triggered structural transitions.
 
-Despite many studies on LOV-type proteins, *the role of secondary structures and their hydrogen-bonding dynamics in allostery was not fully characterized*. :contentReference[oaicite:2]{index=2}
+Despite many studies on LOV-type proteins, *the role of secondary structures and their hydrogen-bonding dynamics in allostery was not fully characterized*. 
 
 ---
 
