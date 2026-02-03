@@ -1,6 +1,4 @@
-# AsLOV2-Simulations-ML
-Allosteric Mechanism of AsLOV2 domain revealed using MD + ML
-# Dynamics of Hydrogen Bonds in the Secondary Structures of Allosteric Protein *Avena sativa* Phototropin 1
+# Dynamics of Hydrogen Bonds in the Secondary Structures of Allosteric Protein *Avena sativa* Phototropin 1 (MD + ML)
 
 This repository accompanies the study:
 
